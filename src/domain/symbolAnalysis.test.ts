@@ -136,4 +136,21 @@ describe("Swift alias ambiguity", () => {
     ]);
     expect(result.categories.other?.items).toEqual([]);
   });
+
+  it("does not let an uncategorizable alias erase a decoded category", () => {
+    // The alias is recognized as Swift but its category cannot be decoded, so
+    // it must not vote. Only an undecodable category-less alias can record a
+    // null kind and drop the procedure into `other`.
+    const result = categorizeSwiftTypes(
+      [{ address: "0x1", name: "$s4main7ServiceCMa" }],
+      {},
+      [{ address: "0x1", name: "$s4main04PairVMa" }],
+    );
+    expect(result).toMatchObject({
+      total: 1,
+      categories: { classes: { count: 1 } },
+      unclassified: [],
+    });
+    expect(result.categories.other?.items).toEqual([]);
+  });
 });

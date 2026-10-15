@@ -119,8 +119,11 @@ export const categorizeSwiftTypes = (
     // erasing category evidence from a name the decoder did recognize.
     const kinds = new Set(
       mangledNames
-        .filter((name) => classifySwiftSymbol(name) !== undefined)
-        .map((name) => classifySwiftSymbol(name)?.category ?? null),
+        .map((name) => classifySwiftSymbol(name)?.category)
+        .filter(
+          (category): category is SwiftTypeCategory =>
+            category !== undefined && category !== null,
+        ),
     );
     const category = kinds.size === 1 ? ([...kinds][0] ?? null) : null;
     const item = {
@@ -133,9 +136,7 @@ export const categorizeSwiftTypes = (
       unclassified.push({
         ...item,
         reason:
-          kinds.size > 1 && !kinds.has(null)
-            ? "conflicting_categories"
-            : "category_not_decoded",
+          kinds.size > 1 ? "conflicting_categories" : "category_not_decoded",
       });
     }
     const bucket = category ?? "other";
